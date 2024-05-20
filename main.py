@@ -1,10 +1,11 @@
 import sqlite3
 from datetime import datetime
 from typing import Optional
+
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, validate_call
-from sqlalchemy import create_engine, Column, Integer, DateTime, Float, func, and_, or_
+from sqlalchemy import create_engine, Column, Integer, DateTime, Float, func, and_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -93,43 +94,16 @@ def create_coil(coil: CoilCreate):
 @app.delete("/api/coil/{coil_id}")
 def delete_coil(coil_id: int):
     db = SessionLocal()
-    coil = db.query(Coil).filter(Coil.id == coil_id).first()
+    coil = db.query(Coil).filter(Coil.id == coil_id is True).first()
     if not coil:
         return {"detail": "Coil not found"}
     db.delete(coil)
     db.commit()
     return {"detail": "Coil deleted"}
 
-'''
-@app.get("/api/coils")
-def get_coils(filter: CoilFilter = None):
-    db = SessionLocal()
-    query = db.query(Coil)
-    if filter:
-        if filter.id_min is not None or filter.id_max is not None:
-            if filter.id
-            query = query.filter(Coil.id >= filter.id_min)
-        if filter.id_max:
-            query = query.filter(Coil.id <= filter.id_max)
-        if filter.weight_min:
-            query = query.filter(Coil.weight >= filter.weight_min)
-        if filter.weight_max:
-            query = query.filter(Coil.weight <= filter.weight_max)
-        if filter.length_min:
-            query = query.filter(Coil.length >= filter.length_min)
-        if filter.length_max:
-            query = query.filter(Coil.length <= filter.length_max)
-        if filter.date_added:
-            query = query.filter(Coil.date_added == filter.date_added)
-        if filter.date_removed:
-            query = query.filter(Coil.date_removed == filter.date_removed)
-    coils = query.all()
-    db.close()
-    return coils
-'''
-
 
 @app.get("/api/coil")
+@validate_call
 def read_coils(filter: CoilFilter = None):
     db = SessionLocal()
     query = db.query(Coil)
@@ -138,19 +112,25 @@ def read_coils(filter: CoilFilter = None):
         conditions = []
 
         if filter.id is not None:
-            conditions.append(Coil.id.between(filter.id[0], filter.id[1]) if isinstance(filter.id, list) else Coil.id == filter.id)
+            conditions.append(
+                Coil.id.between(filter.id[0], filter.id[1]) if isinstance(filter.id, list) else Coil.id == filter.id)
 
         if filter.weight is not None:
-            conditions.append(Coil.weight.between(filter.weight[0], filter.weight[1]) if isinstance(filter.weight, list) else Coil.weight == filter.weight)
+            conditions.append(Coil.weight.between(filter.weight[0], filter.weight[1])
+                              if isinstance(filter.weight, list) else Coil.weight == filter.weight)
 
         if filter.length is not None:
-            conditions.append(Coil.length.between(filter.length[0], filter.length[1]) if isinstance(filter.length, list) else Coil.length == filter.length)
+            conditions.append(Coil.length.between(filter.length[0], filter.length[1])
+                              if isinstance(filter.length, list) else Coil.length == filter.length)
 
         if filter.date_added is not None:
-            conditions.append(Coil.date_added.between(filter.date_added[0], filter.date_added[1]) if isinstance(filter.date_added, list) else Coil.date_added == filter.date_added)
+            conditions.append(
+                Coil.date_added.between(filter.date_added[0], filter.date_added[1])
+                if isinstance(filter.date_added, list) else Coil.date_added == filter.date_added)
 
         if filter.date_removed is not None:
-            conditions.append(Coil.date_removed.between(filter.date_removed[0], filter.date_removed[1]) if isinstance(filter.date_removed, list) else Coil.date_removed == filter.date_removed)
+            conditions.append(Coil.date_removed.between(filter.date_removed[0], filter.date_removed[1])
+                              if isinstance(filter.date_removed, list) else Coil.date_removed == filter.date_removed)
 
         if conditions:
             query = query.filter(and_(*conditions))
