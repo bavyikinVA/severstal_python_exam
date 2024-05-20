@@ -1,9 +1,9 @@
 import sqlite3
 from datetime import datetime
 from typing import Optional
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel, validate_call
+from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, DateTime, Float, func
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import declarative_base
@@ -73,8 +73,10 @@ class CoilFilter(BaseModel):
     weight_max: Optional[float] = None
     length_min: Optional[float] = None
     length_max: Optional[float] = None
-    date_added: Optional[datetime] = None
-    date_removed: Optional[datetime] = None
+    date_removed_start: Optional[datetime] = None
+    date_removed_end: Optional[datetime] = None
+    date_added_start: Optional[datetime] = None
+    date_added_end: Optional[datetime] = None
 
 
 @app.post("/api/coil")
@@ -96,7 +98,7 @@ def create_coil(coil: CoilCreate):
 @app.delete("/api/coil/{coil_id}")
 def delete_coil(coil_id: int):
     db = SessionLocal()
-    coil = db.query(Coil).filter(Coil.id == coil_id).first()
+    coil = db.query(Coil).filter(Coil.id == coil_id is True).first()
     if not coil:
         return {"detail": "Coil not found"}
     db.delete(coil)
@@ -105,24 +107,45 @@ def delete_coil(coil_id: int):
 
 
 @app.get("/api/coil")
-def get_coils(filter: CoilFilter = None):
+def get_coils(filter: CoilFilter = Depends(CoilFilter)):
     db = SessionLocal()
     query = db.query(Coil)
+    print(filter.dict())
+    if filter:
+        if filter.id_min is not None and filter.id_max is not None:
+            query = query.filter(Coil.id.between(filter.id_min, filter.id_max))
+        elif filter.id_min is not None:
+            query = query.filter(Coil.id >= filter.id_min)
+        elif filter.id_max is not None:
+            query = query.filter(Coil.id <= filter.id_max)
 
-    if filter and filter.id is not None:
-        query = query.filter(Coil.id == filter.id)
+        if filter.weight_min is not None and filter.weight_max is not None:
+            query = query.filter(Coil.weight.between(filter.weight_min, filter.weight_max))
+        elif filter.weight_min is not None:
+            query = query.filter(Coil.weight >= filter.weight_min)
+        elif filter.weight_max is not None:
+            query = query.filter(Coil.weight <= filter.weight_max)
 
-    if filter and filter.weight is not None:
-        query = query.filter(Coil.weight == filter.weight)
+        if filter.length_min is not None and filter.length_max is not None:
+            query = query.filter(Coil.length.between(filter.length_min, filter.length_max))
+        elif filter.length_min is not None:
+            query = query.filter(Coil.length >= filter.length_min)
+        elif filter.length_max is not None:
+            query = query.filter(Coil.length <= filter.length_max)
 
-    if filter and filter.length is not None:
-        query = query.filter(Coil.length == filter.length)
+        if filter.date_removed_start is not None and filter.date_removed_end is not None:
+            query = query.filter(Coil.date_removed.between(filter.date_removed_start, filter.date_removed_end))
+        elif filter.date_removed_start is not None:
+            query = query.filter(Coil.date_removed >= filter.date_removed_start)
+        elif filter.date_removed_end is not None:
+            query = query.filter(Coil.date_removed <= filter.date_removed_end)
 
-    if filter and filter.date_added is not None:
-        query = query.filter(Coil.date_added == filter.date_added)
-
-    if filter and filter.date_removed is not None:
-        query = query.filter(Coil.date_removed == filter.date_removed)
+        if filter.date_added_start is not None and filter.date_added_end is not None:
+            query = query.filter(Coil.date_added.between(filter.date_added_start, filter.date_added_end))
+        elif filter.date_added_start is not None:
+            query = query.filter(Coil.date_added >= filter.date_added_start)
+        elif filter.date_added_end is not None:
+            query = query.filter(Coil.date_added <= filter.date_added_end)
 
     coils = query.all()
     db.close()
