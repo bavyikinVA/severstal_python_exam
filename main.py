@@ -108,23 +108,22 @@ def delete_coil(coil_id: int):
 def get_coils(filter: CoilFilter = None):
     db = SessionLocal()
     query = db.query(Coil)
-    if filter:
-        if filter.id_min:
-            query = query.filter(Coil.id >= filter.id_min)
-        if filter.id_max:
-            query = query.filter(Coil.id <= filter.id_max)
-        if filter.weight_min:
-            query = query.filter(Coil.weight >= filter.weight_min)
-        if filter.weight_max:
-            query = query.filter(Coil.weight <= filter.weight_max)
-        if filter.length_min:
-            query = query.filter(Coil.length >= filter.length_min)
-        if filter.length_max:
-            query = query.filter(Coil.length <= filter.length_max)
-        if filter.date_added:
-            query = query.filter(Coil.date_added == filter.date_added)
-        if filter.date_removed:
-            query = query.filter(Coil.date_removed == filter.date_removed)
+
+    if filter and filter.id is not None:
+        query = query.filter(Coil.id == filter.id)
+
+    if filter and filter.weight is not None:
+        query = query.filter(Coil.weight == filter.weight)
+
+    if filter and filter.length is not None:
+        query = query.filter(Coil.length == filter.length)
+
+    if filter and filter.date_added is not None:
+        query = query.filter(Coil.date_added == filter.date_added)
+
+    if filter and filter.date_removed is not None:
+        query = query.filter(Coil.date_removed == filter.date_removed)
+
     coils = query.all()
     db.close()
     return coils
