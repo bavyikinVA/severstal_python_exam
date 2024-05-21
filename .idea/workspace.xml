@@ -5,17 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="71d347ac-c995-4a7b-9875-1afbde05a3eb" name="Changes" comment="commit">
-      <change afterPath="$PROJECT_DIR$/config.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Models.py" beforeDir="false" afterPath="$PROJECT_DIR$/Models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/coils.db" beforeDir="false" afterPath="$PROJECT_DIR$/coils.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/config.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/test_coil_stats.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_coil_stats.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_delete.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_delete.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_get.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_get.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_post.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_post.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_delete.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_get.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_post.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +61,13 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python tests.Python tests for test.test_create_coil.executor": "Run",
+    "Python tests.Python tests for test.test_delete_coil.executor": "Run",
+    "Python tests.Python tests for test.test_get_coils.executor": "Run",
+    "Python tests.Python tests for test.test_get_coils_by_weight.executor": "Run",
+    "Python tests.Python tests for test.test_get_coils_with_multiple_params.executor": "Run",
     "Python tests.Python tests for test.test_main_route.executor": "Run",
+    "Python tests.Python tests for tests.test_get_stats.executor": "Run",
     "Python tests.Python tests in main.py.executor": "Run",
     "Python tests.Python tests in test.py.executor": "Run",
     "Python tests.Python tests in test_coil_stats.py.executor": "Run",
@@ -82,8 +87,8 @@
       <recent name="C:\Users\bavyk\PycharmProjects\severstal_first" />
     </key>
   </component>
-  <component name="RunManager">
-    <configuration name="Python tests for test.test_main_route" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python tests.Python tests for tests.test_get_stats">
+    <configuration name="Python tests for tests" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="severstal_first" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -94,13 +99,77 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test.test_main_route&quot;" />
+      <option name="_new_target" value="&quot;tests&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests for tests.test_delete_coil" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="severstal_first" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;tests.test_delete_coil&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests for tests.test_get_coils_by_weight" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="severstal_first" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;tests.test_get_coils_by_weight&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests for tests.test_get_coils_with_multiple_params" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="severstal_first" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;tests.test_get_coils_with_multiple_params&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests for tests.test_get_stats" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="severstal_first" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;tests.test_get_stats&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python tests.Python tests for test.test_main_route" />
+        <item itemvalue="Python tests.Python tests for tests.test_get_stats" />
+        <item itemvalue="Python tests.Python tests for tests.test_get_coils_with_multiple_params" />
+        <item itemvalue="Python tests.Python tests for tests.test_get_coils_by_weight" />
+        <item itemvalue="Python tests.Python tests for tests" />
+        <item itemvalue="Python tests.Python tests for tests.test_delete_coil" />
       </list>
     </recent_temporary>
   </component>
@@ -192,7 +261,23 @@
       <option name="project" value="LOCAL" />
       <updated>1716257047870</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="commit">
+      <option name="closed" value="true" />
+      <created>1716287757006</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1716287757006</updated>
+    </task>
+    <task id="LOCAL-00011" summary="commit">
+      <option name="closed" value="true" />
+      <created>1716287850611</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1716287850611</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">

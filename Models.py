@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-from sqlalchemy import Column, Integer, DateTime, Float
+from sqlalchemy import Column, Integer, Date, Float
 from datetime import datetime
 from sqlalchemy.orm import declarative_base
 
@@ -12,8 +12,8 @@ class Coil(Base):
     id = Column(Integer, primary_key=True, index=True)
     length = Column(Float)
     weight = Column(Float)
-    date_added = Column(DateTime, default=datetime.now())
-    date_removed = Column(DateTime)
+    date_added = Column(Date)
+    date_removed = Column(Date, nullable=True)
 
 
 class CoilCreate(BaseModel):
