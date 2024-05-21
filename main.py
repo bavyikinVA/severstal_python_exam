@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import HTMLResponse
@@ -79,6 +79,20 @@ class CoilFilter(BaseModel):
     date_added_end: Optional[datetime] = None
 
 
+class CoilStats(BaseModel):
+    coils_added: int
+    coils_removed: int
+    avg_length: float
+    avg_weight: float
+    max_length: float
+    min_length: float
+    max_weight: float
+    min_weight: float
+    total_weight: float
+    max_time_diff: float
+    min_time_diff: float
+
+
 @app.post("/api/coil")
 def create_coil(coil: CoilCreate):
     db = SessionLocal()
@@ -153,19 +167,45 @@ def get_coils(filter: CoilFilter = Depends(CoilFilter)):
 
 
 @app.get("/api/coil/stats")
-def get_stats(start_date: datetime, end_date: datetime):
+def get_coils_stats(date_start: datetime, date_end: datetime):
     db = SessionLocal()
-    query = db.query(
-        func.count(Coil.id).label("total_coils"),
-        func.count(Coil.date_removed).label("removed_coils"),
-        func.avg(Coil.weight).label("avg_weight"),
-        func.avg(Coil.length).label("avg_length"),
-        func.max(Coil.weight).label("max_weight"),
-        func.min(Coil.weight).label("min_weight"),
-        func.max(Coil.length).label("max_length"),
-        func.min(Coil.length).label("min_length"),
-        func.sum(Coil.weight).label("total_weight"),
-    ).filter(Coil.date_added <= end_date, Coil.date_removed >= start_date)
-    stats = query.first()
+
+    date_end += timedelta(days=1)
+
+    query_added = db.query(Coil).filter(Coil.date_added.between(date_start, date_end))
+    query_removed = db.query(Coil).filter(Coil.date_removed.between(date_start, date_end))
+
+    coils_added = query_added.filter(Coil.date_removed.is_(None)).count()
+    coils_removed = query_removed.filter(Coil.date_removed.isnot(None)).count()
+
+    avg_length = query_added.with_entities(func.avg(Coil.length)).scalar()
+    avg_weight = query_added.with_entities(func.avg(Coil.weight)).scalar()
+
+    max_length = query_added.with_entities(func.max(Coil.length)).scalar()
+    min_length = query_added.with_entities(func.min(Coil.length)).scalar()
+
+    max_weight = query_added.with_entities(func.max(Coil.weight)).scalar()
+    min_weight = query_added.with_entities(func.min(Coil.weight)).scalar()
+
+    total_weight = query_added.filter(Coil.date_removed.is_(None)).with_entities(func.sum(Coil.weight)).scalar()
+
+    max_interval = query_removed.filter(Coil.date_removed.isnot(None)).with_entities(
+        func.max(Coil.date_removed - Coil.date_added)).scalar()
+    min_interval = query_removed.filter(Coil.date_removed.isnot(None)).with_entities(
+        func.min(Coil.date_removed - Coil.date_added)).scalar()
+
     db.close()
-    return stats
+
+    return {
+        "coils_added": coils_added,
+        "coils_removed": coils_removed,
+        "avg_length": avg_length,
+        "avg_weight": avg_weight,
+        "max_length": max_length,
+        "min_length": min_length,
+        "max_weight": max_weight,
+        "min_weight": min_weight,
+        "total_weight": total_weight,
+        "max_interval": max_interval.days if max_interval else None,
+        "min_interval": min_interval.days if min_interval else None
+    }
