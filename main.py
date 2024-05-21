@@ -52,7 +52,9 @@ Base.metadata.create_all(bind=engine)
 @app.post("/api/coil")
 def create_coil(coil: CoilCreate):
     db = SessionLocal()
-    new_coil = Coil(length=coil.length, weight=coil.weight)
+    current_datetime = datetime.now()
+    formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S.%f")
+    new_coil = Coil(length=coil.length, weight=coil.weight, date_added=formatted_datetime)
     try:
         db.add(new_coil)
         db.commit()

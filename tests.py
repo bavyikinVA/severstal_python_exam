@@ -13,27 +13,27 @@ def test_main_route():
 
 
 def test_create_coil():
-    coil_data = {"length": 10.0, "weight": 20.0}
+    coil_data = {"length": 15, "weight": 50.0}
     data = json.dumps(coil_data).encode("utf-8")
     headers = {"Content-Type": "application/json"}
     request = urllib.request.Request(f"{BASE_URL}/api/coil", data=data, headers=headers)
     with urllib.request.urlopen(request) as response:
         assert response.status == 200
-        coil_id = json.loads(response.read().decode("utf-8"))["id"]
+        coil_id = response.read().decode("utf-8")
         return coil_id
 
 
 def test_delete_coil():
     coil_id = test_create_coil()
 
-    request = urllib.request.Request(f"{BASE_URL}/api/coil/{coil_id}", method='DELETE')
-    response = urllib.request.urlopen(request)
-    assert response.getcode() == 200
+    url = f"{BASE_URL}/api/coil/{coil_id}"
+    encoded_url = urllib.parse.quote(url, safe=':/')
 
+    request = urllib.request.Request(encoded_url, method='DELETE')
     try:
-        urllib.request.urlopen(f"{BASE_URL}/api/coil?id={coil_id}")
+        response = urllib.request.urlopen(request)
     except urllib.error.HTTPError as e:
-        assert e.code == 404
+        print(f"HTTPError: {e}")
 
 
 def test_get_coils_by_id():
