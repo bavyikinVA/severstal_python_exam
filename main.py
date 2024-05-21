@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, DateTime, Float, func
+from sqlalchemy import create_engine, Column, Integer, DateTime, Float, func, and_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -194,6 +194,29 @@ def get_coils_stats(date_start: datetime, date_end: datetime):
     min_interval = query_removed.filter(Coil.date_removed.isnot(None)).with_entities(
         func.min(Coil.date_removed - Coil.date_added)).scalar()
 
+    day_min_coils_date = (db.query(Coil.date_added)
+                          .filter(and_(Coil.date_added >= date_start, Coil.date_added < date_end))
+                          .group_by(Coil.date_added).order_by(func.count(Coil.id)).limit(1).scalar())
+
+    day_max_coils_date = (db.query(Coil.date_added)
+                          .filter(and_(Coil.date_added >= date_start, Coil.date_added < date_end))
+                          .group_by(Coil.date_added).order_by(func.count(Coil.id).desc()).limit(1).scalar())
+
+    day_min_weight = db.query(Coil.date_added).filter(Coil.date_added.between(date_start, date_end)) \
+        .group_by(Coil.date_added).order_by(func.sum(Coil.weight)).first()
+
+    day_max_weight = db.query(Coil.date_added).filter(Coil.date_added.between(date_start, date_end)) \
+        .group_by(Coil.date_added).order_by(func.sum(Coil.weight).desc()).first()
+
+    if day_min_coils_date:
+        day_min_coils_date = day_min_coils_date.strftime('%Y-%m-%d')
+
+    if day_max_coils_date:
+        day_max_coils_date = day_max_coils_date.strftime('%Y-%m-%d')
+
+    day_min_weight = day_min_weight[0].strftime('%Y-%m-%d') if day_min_weight else None
+    day_max_weight = day_max_weight[0].strftime('%Y-%m-%d') if day_max_weight else None
+
     db.close()
 
     return {
@@ -207,5 +230,9 @@ def get_coils_stats(date_start: datetime, date_end: datetime):
         "min_weight": min_weight,
         "total_weight": total_weight,
         "max_interval": max_interval.days if max_interval else None,
-        "min_interval": min_interval.days if min_interval else None
+        "min_interval": min_interval.days if min_interval else None,
+        "day_min_coils_date": day_min_coils_date,
+        "day_max_coils_date": day_max_coils_date,
+        "day_min_weight": day_min_weight,
+        "day_max_weight": day_max_weight
     }

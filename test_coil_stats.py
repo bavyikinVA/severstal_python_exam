@@ -6,7 +6,7 @@ import json
 base_url = 'http://127.0.0.1:8000/api/coil/stats'
 
 # Создаём словарь с параметрами URL
-params = {'date_start': '2024-05-20', 'date_end': '2024-05-22'}
+params = {'date_start': '2024-05-20', 'date_end': '2024-05-21'}
 
 # Преобразуем словарь в строку запроса
 query_string = urllib.parse.urlencode(params)
