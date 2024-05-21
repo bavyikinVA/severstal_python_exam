@@ -1,41 +1,39 @@
+import argparse
 import sqlite3
 from datetime import datetime, timedelta
-from typing import Optional
+import uvicorn
 from fastapi import FastAPI, HTTPException, Depends
-from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, DateTime, Float, func, and_
+from sqlalchemy import create_engine, func, and_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from utils import config_parser
+from Models import Coil, CoilCreate, CoilFilter
+
 app = FastAPI()
 
-DATABASE_URL = "sqlite:///./coils.db"
+config = config_parser('config.txt')
 
 
 @app.get("/")
 def main():
-    html_content = """
-                <html>
-                    <head>
-                        <title>Some HTML in here</title>
-                    </head>
-                    <body>
-                        <h1>Look ma! HTML!</h1>
-                    </body>
-                </html>
-                """
-    return HTMLResponse(content=html_content, status_code=200)
+    return {"message": "Home page Fastapi!"}
+
+
+if config['DATABASE_TYPE'] == 'sqlite':
+    DATABASE_URL = config['DATABASE_URL_SQLITE']
+else:
+    DATABASE_URL = config['DATABASE_URL_POSTGRES']
 
 
 def test_db_connection():
     try:
-        sqlite_url = DATABASE_URL.replace("sqlite:///", "")
-        conn = sqlite3.connect(sqlite_url)
-        conn.close()
+        engine = create_engine(DATABASE_URL)
+        connection = engine.connect()
+        connection.close()
         return True
-    except sqlite3.Error as e:
+    except (SQLAlchemyError, sqlite3.Error) as e:
         print(f"The error '{e}' occurred")
         return False
 
@@ -48,49 +46,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
-
-class Coil(Base):
-    __tablename__ = "coils"
-    id = Column(Integer, primary_key=True, index=True)
-    length = Column(Float)
-    weight = Column(Float)
-    date_added = Column(DateTime, default=datetime.now())
-    date_removed = Column(DateTime)
-
-
 Base.metadata.create_all(bind=engine)
-
-
-class CoilCreate(BaseModel):
-    length: float
-    weight: float
-
-
-class CoilFilter(BaseModel):
-    id_min: Optional[int] = None
-    id_max: Optional[int] = None
-    weight_min: Optional[float] = None
-    weight_max: Optional[float] = None
-    length_min: Optional[float] = None
-    length_max: Optional[float] = None
-    date_removed_start: Optional[datetime] = None
-    date_removed_end: Optional[datetime] = None
-    date_added_start: Optional[datetime] = None
-    date_added_end: Optional[datetime] = None
-
-
-class CoilStats(BaseModel):
-    coils_added: int
-    coils_removed: int
-    avg_length: float
-    avg_weight: float
-    max_length: float
-    min_length: float
-    max_weight: float
-    min_weight: float
-    total_weight: float
-    max_time_diff: float
-    min_time_diff: float
 
 
 @app.post("/api/coil")
@@ -112,7 +68,7 @@ def create_coil(coil: CoilCreate):
 @app.delete("/api/coil/{coil_id}")
 def delete_coil(coil_id: int):
     db = SessionLocal()
-    coil = db.query(Coil).filter(Coil.id == coil_id is True).first()
+    coil = db.query(Coil).filter(Coil.id == coil_id).first()
     if not coil:
         return {"detail": "Coil not found"}
     db.delete(coil)
@@ -124,7 +80,6 @@ def delete_coil(coil_id: int):
 def get_coils(filter: CoilFilter = Depends(CoilFilter)):
     db = SessionLocal()
     query = db.query(Coil)
-    print(filter.dict())
     if filter:
         if filter.id_min is not None and filter.id_max is not None:
             query = query.filter(Coil.id.between(filter.id_min, filter.id_max))
@@ -202,11 +157,11 @@ def get_coils_stats(date_start: datetime, date_end: datetime):
                           .filter(and_(Coil.date_added >= date_start, Coil.date_added < date_end))
                           .group_by(Coil.date_added).order_by(func.count(Coil.id).desc()).limit(1).scalar())
 
-    day_min_weight = db.query(Coil.date_added).filter(Coil.date_added.between(date_start, date_end)) \
-        .group_by(Coil.date_added).order_by(func.sum(Coil.weight)).first()
+    day_min_weight = (db.query(Coil.date_added).filter(Coil.date_added.between(date_start, date_end))
+                      .group_by(Coil.date_added).order_by(func.sum(Coil.weight)).first())
 
-    day_max_weight = db.query(Coil.date_added).filter(Coil.date_added.between(date_start, date_end)) \
-        .group_by(Coil.date_added).order_by(func.sum(Coil.weight).desc()).first()
+    day_max_weight = (db.query(Coil.date_added).filter(Coil.date_added.between(date_start, date_end))
+                      .group_by(Coil.date_added).order_by(func.sum(Coil.weight).desc()).first())
 
     if day_min_coils_date:
         day_min_coils_date = day_min_coils_date.strftime('%Y-%m-%d')
@@ -214,8 +169,11 @@ def get_coils_stats(date_start: datetime, date_end: datetime):
     if day_max_coils_date:
         day_max_coils_date = day_max_coils_date.strftime('%Y-%m-%d')
 
-    day_min_weight = day_min_weight[0].strftime('%Y-%m-%d') if day_min_weight else None
-    day_max_weight = day_max_weight[0].strftime('%Y-%m-%d') if day_max_weight else None
+    if day_min_weight:
+        day_min_weight = day_min_weight[0].strftime('%Y-%m-%d')
+
+    if day_max_weight:
+        day_max_weight = day_max_weight[0].strftime('%Y-%m-%d')
 
     db.close()
 
@@ -236,3 +194,14 @@ def get_coils_stats(date_start: datetime, date_end: datetime):
         "day_min_weight": day_min_weight,
         "day_max_weight": day_max_weight
     }
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', type=str, dest='config')
+    args = parser.parse_args()
+
+    server_host = config['SERVER_HOST']
+    server_port = int(config['SERVER_PORT'])
+
+    uvicorn.run(app, host=server_host, port=server_port)

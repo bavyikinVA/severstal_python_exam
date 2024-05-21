@@ -1,0 +1,5 @@
+SERVER_HOST = 127.0.0.1
+SERVER_PORT = 7007
+DATABASE_TYPE = sqlite
+DATABASE_URL_SQLITE = sqlite:///./coils.db
+DATABASE_URL_POSTGRES = postgresql://username:password@localhost/dbname
